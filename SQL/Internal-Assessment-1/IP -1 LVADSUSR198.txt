@@ -1,0 +1,58 @@
+1) select customerid , avg(DataUsed) from customerinteractions
+where month = 'March'
+group by customerID
+having avg(dataused)>(select avg(dataused) from customerinteractions where month= 'March' group by month) ;
+
+2)
+
+3)select CustomerID,month,sum(CallDuration) as totalcallduration ,sum(MessageCount) as totalmessagecount
+from customerinteractions
+group by month,CustomerID
+having sum(callduration) > sum(messagecount)
+order by month;
+
+
+4)select producttypeID, sum(TotalSalesAmount) as totalsales
+from quarterlysales 
+where ProductTypeID = 1
+group by producttypeid
+
+5)select producttypeID, max(TotalSalesAmount) as highestsales
+from quarterlysales 
+where Quarter = 'Q1' and year = 2024
+group by producttypeid
+order by highestsales desc
+
+6)select ProductTypeID, (TotalSalesAmount/UnitsSold) as price_per_unit
+from quarterlysales
+where ProductTypeID = 1 and quarter = 'Q2'  and year = 2024
+
+7)select region,sum(ConsumptionKWh) 
+from sectorenergyconsumption
+where (EnergySource = 'solar' or EnergySource = 'wind') and month = 'March'
+group by region;
+
+
+8)select sector,month,avg(ConsumptionKWh)
+from internal_assessment1.sectorenergyconsumption
+group by sector,month
+order by month;
+
+9)
+
+10)select customername, investigation 
+from insuranceactivities
+where (ClaimsCount > (select avg(ClaimsCount) from insuranceactivities ) 
+or feedbackscore > (select avg(feedbackscore) from insuranceactivities))
+and investigation = 'no';
+
+11)select customername,sum(annualpremium) as total_sum
+from insuranceactivities
+where Investigation = 'no' and ClaimsCount > 1
+group by customername
+having avg(feedbackscore) > (select avg(feedbackscore) from insuranceactivities); 
+
+12) 
+
+
+
