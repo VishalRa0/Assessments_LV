@@ -1,0 +1,100 @@
+1) select machine_id, maintenance_date,cost from l1_maintenance_records
+where month(maintenance_date)= 3 and cost > ( select avg(cost) from l1_maintenance_records
+where month(maintenance_date)= 3);
+
+2)select  maintenance_type ,count(*) as count  from l1_maintenance_records
+where month(maintenance_date)= 3 and year(maintenance_date) = 2024
+group by maintenance_type
+
+3)select technician_name,count(technician_name) as count_of_work, avg(cost) as cost_of_technician from l1_maintenance_records
+where month(maintenance_date)= 3 and year(maintenance_date) = 2024
+group by technician_name;
+
+4)select product_id,(avg(incident_count_pre_update) - avg(incident_count_post_update) ) as average_reduction
+from l2_updates
+group by product_id;
+
+
+5)select update_id,user_feedback_score from l2_updates
+group by update_id
+having max(user_feedback_score)
+order by user_feedback_score desc;
+
+6)select product_id,(avg(incident_count_pre_update) - avg(incident_count_post_update) ) as average_reduction
+from l2_updates
+group by product_id
+order by average_reduction asc;
+
+7)create view patient_details as select p.patient_name,fl.facility_name,v.reason_for_visit,t.outcome from 
+l3_patients p 
+join 
+l3_visits v
+on p.patient_id = v.patient_id
+join l3_facilities fl 
+on fl.facility_id = v.facility_id
+join l3_treatments t 
+on t.visit_id = v.visit_id
+where month(visit_date)= 3 and year(visit_date) = 2024;
+
+select * from patient_details;
+
+8)select fl.facility_name, count(fl.facility_name) as count_of_visit from 
+l3_visits v 
+join 
+l3_facilities fl
+on v.facility_id = fl.facility_id
+where (month(visit_date)= 3 and year(visit_date) = 2024) and v.reason_for_visit ='Emergency'
+group by fl.facility_name;
+
+9)select p.patient_name,p.insurance_provider,quarter(v.visit_date) as quarter,t.outcome
+from 
+l3_patients p 
+join 
+l3_visits v
+on p.patient_id = v.patient_id
+join l3_facilities fl 
+on fl.facility_id = v.facility_id
+join l3_treatments t 
+on t.visit_id = v.visit_id
+where t.outcome = 'complicated' and quarter(v.visit_date) = 1;
+
+10)select distinct(category),product_name from l4_products
+where product_id in
+ (select product_id from l4_sales
+where month(sale_date)= 3 and year(sale_date) = 2024
+group by product_id
+having max(quantity)
+order by max(quantity) desc
+);
+
+11)create view total_sales_region2 as select st.store_name,st.region,s.sale_date, (p.price*s.quantity) as total_sale from l4_sales s
+join 
+l4_stores st
+on s.store_id = st.store_id
+join l4_products p
+on p.product_id = s.product_id;
+
+select region ,concat('$',sum(total_sale)) as total_sales from total_sales_region2
+where quarter(sale_date) = 1 and year(sale_date) = 2024
+group by region 
+order by total_sales desc;
+
+12)select *  from l4_products p 
+left join  
+l4_sales s 
+on 
+p.product_id = s.product_id
+where month(s.sale_date) = 3 and year(sale_date) = 2024
+union 
+select *  from l4_products p 
+right join  
+l4_sales s 
+on 
+p.product_id = s.product_id
+where month(s.sale_date) = 3 and year(sale_date) = 2024
+
+
+
+
+
+
