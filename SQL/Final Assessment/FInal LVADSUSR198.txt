@@ -1,0 +1,107 @@
+1) select p.product_category , avg(sales_amount) as avg_of_sales from sales_records sr
+join 
+products p 
+on sr.product_id = p.product_id
+where year(sales_date) = 2024 and day(sales_date) < 30 and month(sales_date) = 3
+group by p.product_category;
+
+2) with rank1 as (select product_id ,sum(sales_amount) as total_sales 
+from sales_records
+where year(sales_date) = 2024
+group by product_id)
+
+select product_id  ,total_sales,dense_rank() over(order by total_sales desc ) as ranking  from rank1
+limit 3
+
+3) with total_sales1 as(select customer_id ,sum(sales_amount) as sales_amount  from sales_records
+group by customer_id)
+select customer_id ,sales_amount, dense_rank()over(order by sales_amount desc) from total_sales1;
+
+4) with cte as (select customer_id,count(*)as co, group_concat(sales_date) from sales_records
+group by customer_id)
+select customer_id,case when co > 2 then "frequent buyers"
+else 'occasional buyers'
+end
+as frequency
+from cte
+5) select f.flight_number, avg(ticket_price), (group_concat(distinct(f.departure_airport)))as dep,group_concat(distinct(f.arrival_airport)) as arrival from flights f
+join tickets t 
+on f.flight_id = t.flight_id
+group by f.flight_id
+6) select f.flight_number ,group_concat(distinct(departure_date)) as dep_date,count(*) total_tickets_sold from flights f
+join tickets t 
+on f.flight_id = t.flight_id
+where datediff(curdate(),ticket_date)<30 and month(ticket_date) <> 4
+group by f.flight_number
+
+7) select p.passenger_id, sum(ticket_price) as total_spent  from passengers p 
+join tickets t 
+on p.passenger_id = t.passenger_id
+group by p.passenger_id 
+order by total_spent desc;
+
+8) select month(ticket_date) as month, count(*) as tickets_sold, sum(ticket_price) as total_sales from tickets t
+group by month(ticket_date)
+
+9) with cte as (select p.player_id,p.game_id,p.play_date,pl.registration_date,lag(play_date) over(partition by p.player_id ) as lag_date from playerscores p
+join 
+players pl 
+on p.player_id = pl.player_id)
+
+select player_id,avg(lag_date-play_date) as average_day from cte group by player_id;
+
+10) select game_id,count(player_id) as count_of_player from playerscores 
+group by game_id;
+
+11) select distinct(game_id),avg(score)over(partition by game_id ) average_score, max(score) over(partition by game_id) as max_score,
+count(player_id) over(partition by game_id) as count_of_player
+ from playerscores;
+
+12) with cte as (select p.player_id,p.game_id,p.play_date,pl.registration_date,lag(play_date) over(partition by p.player_id ) as lag_date from playerscores p
+join 
+players pl 
+on p.player_id = pl.player_id)
+
+select player_id,registration_date,play_date as latest,(lag_date-play_date) as days_gap from cte where (lag_date-play_date) < 30;
+
+13) select d.doctor_name,sum(cost) as treatment_cost  from doctors d 
+join treatments te 
+on d.doctor_id = te.doctor_id
+group by d.doctor_name
+order by treatment_cost desc;
+
+14) select treatment_name,sum(cost) over (partition by treatment_name) as revenue from treatments order by revenue desc;
+
+15)select patient_id, group_concat(distinct(patient_name)),admission_date ,group_concat(distinct(discharge_date)) from patients where (admission_date - discharge_date ) < 30   group by patient_id , admission_date order by admission_date asc;
+
+16) select gender,diagnosis ,avg(discharge_date-admission_date) as avg_days from patients group by gender,diagnosis;
+
+17) select semester,department, avg(grade) as average_grades from courses c 
+join 
+enrollments en 
+on c.course_id = en.course_id
+group by semester,department
+order by semester, department;
+
+18) select c.department, count(student_id) as count_of_students from courses c 
+join 
+enrollments en 
+on c.course_id = en.course_id
+group by department
+order by count_of_students desc;
+
+19) select sum(c.credits) over(partition by en.student_id) from courses c 
+join 
+enrollments en 
+on c.course_id = en.course_id
+
+20) select c.course_id , count(en.student_id) as countofstu from courses c 
+	join 
+	enrollments en 
+	on c.course_id = en.course_id
+    group by c.course_id
+    order by countofstu desc
+
+
+
+
